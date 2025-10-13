@@ -80,8 +80,8 @@ pipeline
             agent { lable 'appserver'}
 
             steps
-             echo 'starting deployment using docker-compose...'
              { 
+                echo 'starting deployment using docker-compose...'
                 script
                 {
                   dir("${WORKSPACE}")
@@ -95,8 +95,8 @@ pipeline
                   }
                     
                 }
-            }
-            echo 'Deployment completed successfully'
+                echo 'Deployment completed successfully'
+             }
         }
     }
 
