@@ -1,103 +1,90 @@
-pipeline
-{
+pipeline {
     agent any
-    enviroment
-    {
-        // Docker hub credentails ID stored in Jenkins
-        DOCKERHUB_CREDENTIALS = 'cyber-3120'
-        IMAGE_NAME = 'jakefarm1775/jakegametest123'
+
+    environment {
+        // Docker Hub credentials ID stored in Jenkins
+        DOCKERHUB_CREDENTIALS ='cybr-3120'
+        IMAGE_NAME ='jakefarm1775/jakegametest123'
     }
 
-    stages
-    {
-        stage ('cloning Git')
-        {
-            steps
-            {
+    stages {
+
+        stage('Cloning Git') {
+            steps {
                 checkout scm
             }
         }
 
-        stage ('SAST')
-        {
-            steps
-            {
-                sh 'echo running SAST scan with snyk...'
+        stage('SAST') {
+            steps {
+                sh 'echo Running SAST scan...'
             }
         }
 
-        stage ('BUILD-AND-TAG')
-        {
-            agent { lable 'appserver'}
-
-            steps { 
-                script
-                {
-                    // Build Docker Image Using Jenkins Pipeline API
-                    echo "BUILDING DOCKER IMAGE ${IMAGE_NAME}..."
+      stage('BUILD-AND-TAG') {
+            agent {
+                label 'appserver'
+            }
+            steps {
+                script {
+                    // Build Docker image using Jenkins Docker Pipeline API
+                    echo "Building Docker image ${IMAGE_NAME}..."
                     app = docker.build("${IMAGE_NAME}")
                     app.tag("latest")
-
                 }
             }
         }
 
-         stage ('SAST')
-        {
-            steps
-            {
-                sh 'echo running SAST scan with snyk...'
+
+        stage('POST-TO-DOCKERHUB') {    
+            agent {
+                label 'appserver'
             }
-        }
-
-        stage ('POST-TO-DOCKERHUB')
-        {
-            agent { lable 'appserver'}
-
-            steps { 
-                script
-                {
-                   echo "push image ${IMAGE_NAME}:latest to Docker Hub..."
-                   docker.withRegistry('https://registry.hub.docker.com',"${DOCKERHUB_CREDENTIALS}")
-                   {
-                    app.push("latest")
-                   }
-                    
+            steps {
+                script {
+                    echo "Pushing image ${IMAGE_NAME}:latest to Docker Hub..."
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKERHUB_CREDENTIALS}") {
+                        app.push("latest")
+                    }
                 }
             }
         }
-        
-        stage ('DAST')
-        {
-            steps
-            {
-                sh 'echo running DAST scan...'
+
+        stage('SECURITY-IMAGE-SCANNER') {
+            steps {
+                sh 'echo Scanning Docker image for vulnerabilities...'
             }
         }
 
-         stage ('DEPLOYMENT')
-        {
-            agent { lable 'appserver'}
-
-            steps
-             { 
-                echo 'starting deployment using docker-compose...'
-                script
-                {
-                  dir("${WORKSPACE}")
-                  {
-                    sh '''
-                        docker-compose down
-                        docker-compose up -d
-                        docker ps    
-                    '''
-                
-                  }
-                    
-                }
-                echo 'Deployment completed successfully'
-             }
+        stage('Pull-image-server') {
+            steps {
+                sh 'echo Pulling image on server...'
+            }
         }
-    }
 
-}
+        stage('DAST') {
+            steps {
+                sh 'echo Performing DAST scan...'
+            }
+        }
+
+        stage('DEPLOYMENT') {    
+            agent {
+                label 'CYBR3120-01-app-server'
+            }
+            steps {
+                echo 'Starting deployment using docker-compose...'
+                script {
+                    dir("${WORKSPACE}") {
+                        sh '''
+                            docker-compose down
+                            docker-compose up -d
+                            docker ps
+                        '''
+                    }
+                }
+                echo 'Deployment completed successfully!'
+            }
+        }
+    }  
+} 
