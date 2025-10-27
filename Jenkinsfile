@@ -22,7 +22,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             agent {
-                label ''
+                label 'gameapp'
             }
             steps {
                 script {
