@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Docker Hub credentials ID stored in Jenkins
-        DOCKERHUB_CREDENTIALS ='cybr-3120'
+        DOCKERHUB_CREDENTIALS ='cyber-3120'
         IMAGE_NAME ='jakefarm1775/gameapptestauto'
     }
 
