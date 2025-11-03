@@ -85,7 +85,7 @@ pipeline {
 
         stage('DEPLOYMENT') {    
             agent {
-                label 'CYBR3120-01-app-server'
+                label 'appserver'
             }
             steps {
                 echo 'Starting deployment using docker-compose...'
