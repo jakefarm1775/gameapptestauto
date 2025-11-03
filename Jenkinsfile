@@ -22,7 +22,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             agent {
-                label 'appserver'
+                label 'newappserver'
             }
             steps {
                 script {
@@ -38,7 +38,7 @@ pipeline {
 
       stage('BUILD-AND-TAG') {
             agent {
-                label 'appserver'
+                label 'newappserver'
             }
             steps {
                 script {
@@ -53,7 +53,7 @@ pipeline {
 
         stage('POST-TO-DOCKERHUB') {    
             agent {
-                label 'appserver'
+                label 'newappserver'
             }
             steps {
                 script {
@@ -85,7 +85,7 @@ pipeline {
 
         stage('DEPLOYMENT') {    
             agent {
-                label 'appserver'
+                label 'newappserver'
             }
             steps {
                 echo 'Starting deployment using docker-compose...'
